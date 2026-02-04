@@ -1,0 +1,9 @@
+numpy
+cupy-cuda12x
+jax[cuda12]
+warp-lang
+matplotlib
+tqdm
+scipy
+pytest
+taichi

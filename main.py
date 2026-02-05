@@ -1,6 +1,8 @@
 import argparse
 import sys
 import os
+import json
+from datetime import datetime, timezone
 from core.configs import LBMConfig, FDMConfig
 from core.profiler import Profiler
 
@@ -93,10 +95,32 @@ def run_benchmark(args):
 
     if args.benchmark == "lbm":
         mlups = (total_ops / p.duration) / 1e6
-        print(f"Performance: {mlups:.2f} MLUPS")
+        perf_value = mlups
+        perf_unit = "MLUPS"
+        print(f"Performance: {perf_value:.2f} {perf_unit}")
     elif args.benchmark == "fdm":
         mpts = (total_ops / p.duration) / 1e6  # Million Points Per Second
-        print(f"Performance: {mpts:.2f} Mpts/s")
+        perf_value = mpts
+        perf_unit = "Mpts/s"
+        print(f"Performance: {perf_value:.2f} {perf_unit}")
+
+    # Output JSON if requested
+    if args.output_json:
+        results = {
+            "benchmark": args.benchmark,
+            "backend": args.backend,
+            "nx": args.nx,
+            "ny": args.ny,
+            "iterations": args.iterations,
+            "precision": args.precision,
+            "duration": p.duration,
+            "performance_metric": perf_value,
+            "performance_unit": perf_unit,
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        }
+        with open(args.output_json, "w") as f:
+            json.dump(results, f, indent=4)
+        print(f"Results saved to {args.output_json}")
 
 
 def main():
@@ -126,6 +150,9 @@ def main():
         default="f64",
         choices=["f32", "f64"],
         help="Precision (f32 or f64)",
+    )
+    parser.add_argument(
+        "--output-json", type=str, help="Path to save results in JSON format"
     )
 
     args = parser.parse_args()

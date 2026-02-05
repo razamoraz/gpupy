@@ -92,4 +92,9 @@ done
 echo "===================================================="
 echo "Benchmarking Complete."
 echo "Full summary: $SUMMARY_FILE"
+
+# Auto-generate scaling plots using core/analysis.py
+echo -e "\nGenerating scaling plots..."
+$PYTHON_EXEC core/analysis.py --output scaling_latest
+
 echo "===================================================="

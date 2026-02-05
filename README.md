@@ -41,12 +41,20 @@ chmod +x run_benchmarks.sh
 The script generates a session-based directory in `results/bench_YYYYMMDD_HHMMSS/` containing:
 - Individual `.json` files for each backend/benchmark combination.
 - Verbose `.log` files for each run (capturing backend-specific initialization and errors).
-- A consolidated `summary.json` containing an array of all results, ideal for scaling analysis and automated plotting.
+- A consolidated `summary.json` containing an array of all results.
 
-Example:
+## Scaling Analysis & Plotting
+
+You can visualize scaling performance across different grid sizes and backends using the standalone analysis tool:
+
 ```bash
-./run_benchmarks.sh 1024 1024 2000 f64
+python core/analysis.py --dir results --output scaling_latest
 ```
+
+### Features:
+- **Auto-Aggregation**: Scans all subdirectories in `results/` to build a comprehensive view of performance.
+- **Robust Visualization**: Automatically handles multiple precisions (`f32` vs `f64`) and aggregates multiple runs for the same grid size (showing mean lines and individual data points).
+- **Automation**: The `run_benchmarks.sh` script calls this tool automatically at the end of every run, generating `scaling_latest_lbm.png` and `scaling_latest_fdm.png` in the project root.
 
 ## Backend Consistency
 All backends (NumPy, CuPy, JAX, Warp, Taichi) are standardized to update macroscopic variables (`rho`, `ux`, `uy`) at the end of each simulation step ($t+1$), ensuring numerical consistency when comparing results across different implementations.

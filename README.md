@@ -2,6 +2,10 @@
 
 A comprehensive benchmarking suite to compare the performance of Python libraries (NumPy, CuPy, JAX, Warp) for scientific computing tasks: Lattice Boltzmann Method (LBM) and Finite Difference Method (FDM).
 
+Latest results: 05.02.2026
+![](images/scaling_latest_fdm.png)
+![](images/scaling_latest_lbm.png)
+
 ## Requirements
 - Python 3.10+
 - CUDA Toolkit 12.x

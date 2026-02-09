@@ -9,6 +9,7 @@ The benchmark results clearly demonstrate that **Fusion of Operations** is the s
 | **CuPy (Opt)** | Manual Fusion | ~111 | **Fused**: `RawKernel` allows manual loop fusion, keeping data in registers. | [lbm_cupy_opt.py](benchmarks/lbm/lbm_cupy_opt.py) |
 | **Taichi** | Native DSL | ~268 | **Native**: Specifically designed for physical simulation stencils. | [lbm_taichi.py](benchmarks/lbm/lbm_taichi.py) |
 | **Warp** | Native Kernels | ~370+ | **Native**: Compiles directly to CUDA C++, minimal overhead. | [lbm_warp.py](benchmarks/lbm/lbm_warp.py) |
+| **Julia** | Native CUDA Kernel | **~408** | **Native**: Direct LLVM compilation to CUDA; zero-overhead abstractions like `StaticArrays`. | [lbm_d2q9.jl](benchmarks/lbm/lbm_d2q9.jl) |
 
 ## The GPGPU Priority List
 

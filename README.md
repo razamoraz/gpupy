@@ -1,6 +1,4 @@
-# BenchGPUPy: Python GPU Benchmarking Suite
-
-A comprehensive benchmarking suite to compare the performance of Python libraries (NumPy, CuPy, JAX, Warp) for scientific computing tasks: Lattice Boltzmann Method (LBM) and Finite Difference Method (FDM).
+A comprehensive benchmarking suite to compare the performance of Python (NumPy, CuPy, JAX, Warp, Taichi) and **Julia** backends for scientific computing tasks: Lattice Boltzmann Method (LBM) and Finite Difference Method (FDM).
 
 Latest results: 05.02.2026
 ![](images/scaling_latest_fdm.png)
@@ -9,7 +7,14 @@ Latest results: 05.02.2026
 ## Requirements
 - Python 3.10+
 - CUDA Toolkit 12.x
-- Dependencies: `pip install -r requirements.txt`
+- Python Dependencies: `pip install -r requirements.txt`
+- Julia 1.9+ (Optional, for Julia benchmarks)
+
+### Julia Environment Setup
+To run the Julia backends, install the required packages:
+```bash
+julia -e 'using Pkg; Pkg.add(["StaticArrays", "CUDA", "HDF5"])'
+```
 
 ## Usage
 
@@ -27,7 +32,23 @@ python main.py --benchmark lbm --backend cupy --nx 1024 --ny 1024 --iterations 2
 - `--precision`: `f32` or `f64` (default: `f64`)
 - `--output-json`: (Optional) Path to save results in JSON format for scaling analysis.
 
-## Automated Benchmarking
+## Julia Benchmarks
+
+The project includes an optimized Julia implementation for the LBM benchmark, supporting Serial, Multi-threaded, and GPU execution.
+
+Run the Julia benchmark:
+```bash
+# Serial (Float32 by default)
+julia benchmarks/lbm/lbm_d2q9.jl
+
+# Multi-threaded (Float64)
+julia -t 8 benchmarks/lbm/lbm_d2q9.jl --precision f64
+
+# Custom grid and iterations
+julia benchmarks/lbm/lbm_d2q9.jl --nx 1024 --ny 1024 --iterations 500
+```
+
+The Julia implementation (fused CUDA kernel) achieved **~400 MLUPS** on GPU, outperforming several Python-based backends.
 
 Use the provided shell script to automate performance measurements across all backends:
 

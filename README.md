@@ -46,9 +46,18 @@ julia -t 8 benchmarks/lbm/lbm_d2q9.jl --precision f64
 
 # Custom grid and iterations
 julia benchmarks/lbm/lbm_d2q9.jl --nx 1024 --ny 1024 --iterations 500
+
+# Export final fields to HDF5 (for verification)
+julia benchmarks/lbm/lbm_d2q9.jl --export
 ```
 
 The Julia implementation (fused CUDA kernel) achieved **~400 MLUPS** on GPU, outperforming several Python-based backends.
+
+### Julia Options
+- `--nx`, `--ny`: Grid dimensions (default: 512).
+- `--iterations`: Number of simulation steps (default: 100).
+- `--precision`: `f32` or `f64` (default: `f32`).
+- `--export`: Export final `rho`, `ux`, and `uy` fields to HDF5 files (e.g., `julia_ser_Float64_results.h5`).
 
 Use the provided shell script to automate performance measurements across all backends:
 

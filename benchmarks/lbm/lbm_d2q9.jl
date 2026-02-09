@@ -231,15 +231,38 @@ end
 # -----------------------------------------------------------------------------
 function run_gpu_highlevel(iters_count)
     if !HAS_CUDA return nothing, 0.0 end
-    ρ = CuArray(init_density(T))
-    f = CuArray(zeros(T, Q, NX, NY)); fnew = CuArray(zeros(T, Q, NX, NY))
-    f .= reshape(ρ, 1, NX, NY) .* reshape(T.(w), Q, 1, 1)
+    ρ_init = CuArray(init_density(T))
+    f = CuArray(zeros(T, Q, NX, NY))
+    fnew = CuArray(zeros(T, Q, NX, NY))
     
+    # Initialization
+    f .= reshape(ρ_init, 1, NX, NY) .* reshape(T.(w), Q, 1, 1)
+    
+    # Pre-calculate constants for broadcasting
+    cu_cx = CuArray(reshape(T.(cx), Q, 1, 1))
+    cu_cy = CuArray(reshape(T.(cy), Q, 1, 1))
+
     CUDA.synchronize()
     t_start = time_ns()
-    for t in 1:iters_count
-        # Shift j for cx, i for cy
-        for q in 1:Q fnew[q,:,:] = circshift(f[q,:,:], (cy[q], cx[q])) end
+    @inbounds for t in 1:iters_count
+        # Collision (High-Level Broadcasting)
+        rho = dropdims(sum(f, dims=1), dims=1)
+        ux = dropdims(sum(f .* cu_cx, dims=1), dims=1) ./ rho
+        uy = dropdims(sum(f .* cu_cy, dims=1), dims=1) ./ rho
+        u2 = ux.^2 .+ uy.^2
+        
+        for q in 1:Q
+            cu = T(cx[q]) .* ux .+ T(cy[q]) .* uy
+            feq_q = T(w[q]) .* rho .* (T(1.0) .+ T(3.0).*cu .+ T(4.5).*cu.*cu .- T(1.5).*u2)
+            # Update f in place using views
+            fq_view = @view f[q,:,:]
+            fq_view .-= OMEGA .* (fq_view .- feq_q)
+        end
+
+        # Streaming
+        for q in 1:Q
+            fnew[q,:,:] = circshift(@view(f[q,:,:]), (cy[q], cx[q]))
+        end
         f, fnew = fnew, f
     end
     CUDA.synchronize()
